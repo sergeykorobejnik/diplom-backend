@@ -8,6 +8,7 @@ import {handleBadJWT} from "./utils/handleBadJWT";
 import {authRouter} from "./routes";
 import bodyParser from "body-parser";
 import {channelWebsocket} from "./webSockets";
+import channelRouter from "./routes/channel.routes";
 
 
 dotenv.config();
@@ -32,6 +33,7 @@ app.use(bodyParser.json())
 
 
 app.use(API_BASE_AUTH, authRouter);
+app.use(API_CHANNELS, channelRouter);
 
 
 (async () => {

@@ -5,6 +5,20 @@ export type SingUpPayload = {
     tag: string;
     password: string;
 }
+export type CreateChannelPayload = {
+    channelName: string;
+   userTag: string;
+   recipientTag: string;
+}
+
+export type GetChannelByUser = {
+   userId: string;
+}
+
+export type GetUsersByTagPayload = {
+   userTag: string;
+}
+
 
 export type SingInPayload = Pick<SingUpPayload, 'email' | 'password'>
 

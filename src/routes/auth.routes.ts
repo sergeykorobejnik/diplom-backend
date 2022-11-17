@@ -6,6 +6,7 @@ import responseService from "../utils/response.service";
 import {body, validationResult} from "express-validator";
 import * as bcrypt from 'bcryptjs'
 import * as jwt from 'jsonwebtoken';
+import { StreamChat } from 'stream-chat';
 
 
 const authRouter = Router()
@@ -35,10 +36,17 @@ authRouter.post(
         //saving basic user data
         await user.save()
 
+        const stream = StreamChat.getInstance(process.env["STREAM_API_KEY"] as string, process.env["STREAM_SECRET_KEY"]);
+
+        await stream.upsertUser({
+            id: user.tag,
+        })
+
         return responseService.sendApiSuccess(res, 200, {
             id: user.id,
             tag: user.tag,
             email: user.email,
+            streamToken: stream.createToken(user.tag),
             token: jwt.sign(user.id, process.env["JWT_SECRET"] as string, {algorithm: 'HS256'})
         })
     }
@@ -65,10 +73,14 @@ authRouter.post(
             "Wrong user password",
         ])
 
+        const stream = StreamChat.getInstance(process.env["STREAM_API_KEY"] as string, process.env["STREAM_SECRET_KEY"])
+
+
         return responseService.sendApiSuccess(res, 200, {
             id: user.id,
             tag: user.tag,
             email: user.email,
+            streamToken: stream.createToken(user.tag),
             token: jwt.sign(user.id, process.env["JWT_SECRET"] as string, {algorithm: 'HS256'})
         })
     }
