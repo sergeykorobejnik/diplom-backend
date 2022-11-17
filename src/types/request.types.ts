@@ -1,12 +1,12 @@
 import {Request} from 'express';
 
 export type SingUpPayload = {
+    name: string;
     email: string;
     tag: string;
     password: string;
 }
 export type CreateChannelPayload = {
-    channelName: string;
    userTag: string;
    recipientTag: string;
 }

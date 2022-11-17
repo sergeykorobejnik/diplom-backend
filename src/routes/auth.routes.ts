@@ -16,39 +16,48 @@ authRouter.post(
     body('email').isEmail(),
     body('password').isString().isLength({min: 5}),
     body('tag').isString().isLength({min: 3}),
+    body('name').isString().isLength({min: 3}),
     async (req: RequestWithBody<SingUpPayload>, res) => {
-        const {email, password, tag} = req.body
+        try {
+            const {email, password, tag, name} = req.body
 
-        //validating fields
-        const errors = validationResult(req)
+            //validating fields
+            const errors = validationResult(req)
 
-        if (!errors.isEmpty()) return responseService.sendApiError(res, 400, [...errors.array().map(({msg}) => msg)])
-        //looking for existing user in db
-        if (await User.findOne({email})) return responseService.sendApiError(res, 400, [
-            "This email already taken",
-        ])
-        //creating user in mongo
-        const user = new User({
-            email,
-            password: await bcrypt.hash(password, 12),
-            tag
-        })
-        //saving basic user data
-        await user.save()
+            if (!errors.isEmpty()) return responseService.sendApiError(res, 400, [...errors.array().map(({msg}) => msg)])
+            //looking for existing user in db
+            if (await User.findOne({email})) return responseService.sendApiError(res, 400, [
+                "This email already taken",
+            ])
+            //creating user in mongo
+            const user = new User({
+                name,
+                email,
+                password: await bcrypt.hash(password, 12),
+                tag
+            })
+            //saving basic user data
+            await user.save()
 
-        const stream = StreamChat.getInstance(process.env["STREAM_API_KEY"] as string, process.env["STREAM_SECRET_KEY"]);
+            const stream = StreamChat.getInstance(process.env["STREAM_API_KEY"] as string, process.env["STREAM_SECRET_KEY"]);
 
-        await stream.upsertUser({
-            id: user.tag,
-        })
+            await stream.upsertUser({
+                id: user.tag,
+                name: user.name,
+            })
 
-        return responseService.sendApiSuccess(res, 200, {
-            id: user.id,
-            tag: user.tag,
-            email: user.email,
-            streamToken: stream.createToken(user.tag),
-            token: jwt.sign(user.id, process.env["JWT_SECRET"] as string, {algorithm: 'HS256'})
-        })
+            return responseService.sendApiSuccess(res, 200, {
+                id: user.id,
+                tag: user.tag,
+                email: user.email,
+                name: user.name,
+                streamToken: stream.createToken(user.tag),
+                token: jwt.sign(user.id, process.env["JWT_SECRET"] as string, {algorithm: 'HS256'})
+            })
+
+        } catch (e) {
+            responseService.sendApiError(res, 500, ['Server error'])
+        }
     }
 )
 
