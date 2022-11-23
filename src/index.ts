@@ -13,12 +13,7 @@ import channelRouter from "./routes/channel.routes";
 
 dotenv.config();
 
-
 const app = express();
-
-
-
-
 
 app.use(cors());
 app.use(expressjwt({
@@ -37,7 +32,7 @@ app.use(API_CHANNELS, channelRouter);
 
 
 (async () => {
-    await mongoose.connect('mongodb+srv://tilker:tyodus5wi5jw4SFA@cluster0.2mskzud.mongodb.net/?retryWrites=true&w=majority')
+    await mongoose.connect(process.env["MONGO_URI"] as string)
     console.log('mongo connected')
 
     const server = await app.listen(process.env["SERVER_PORT"], () => {

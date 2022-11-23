@@ -6,7 +6,6 @@ import {CreateChannelPayload, GetChannelByUser, RequestWithBody, SingUpPayload} 
 
 const channelRouter = express.Router()
 
-console.log(typeof channelRouter.ws)
 
 channelRouter.post('/create', async (req: RequestWithBody<CreateChannelPayload>, res) => {
     try {
